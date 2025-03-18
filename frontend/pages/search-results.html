@@ -3,19 +3,25 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Your Recommendations - MovieRecommender</title>
+    <title>Search Results - Uflix</title>
     
     <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
     
     <!-- Custom CSS -->
     <link rel="stylesheet" href="../assets/css/style.css">
+    <script src="../assets/js/global.js"></script>
+    <style>
+        body {
+            background-color: #141414;
+        }
+    </style>
 </head>
 <body>
     <!-- Navigation Bar -->
     <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
         <div class="container">
-            <a class="navbar-brand" href="../index.html">MovieRecommender</a>
+            <a class="navbar-brand" href="../index.html">UFlix</a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
                 <span class="navbar-toggler-icon"></span>
             </button>
@@ -24,18 +30,17 @@
                     <li class="nav-item">
                         <a class="nav-link" href="../index.html">Home</a>
                     </li>
-                    <li class="nav-item">
-                        <a class="nav-link active" href="recommendations.html">My Recommendations</a>
-                    </li>
+
                     <li class="nav-item">
                         <a class="nav-link" href="profile.html">Profile</a>
                     </li>
                 </ul>
                 <form class="d-flex" id="search-form">
-                    <input class="form-control me-2" type="search" placeholder="Search movies..." id="search-input">
+                    <input class="form-control me-2" type="search" 
+                           placeholder="Search movies..." id="search-input" required>
                     <button class="btn btn-outline-light" type="submit">Search</button>
                 </form>
-                <div class="ms-3 d-none" id="auth-buttons">
+                <div class="ms-3" id="auth-buttons">
                     <button class="btn btn-outline-light me-2" id="login-btn">Login</button>
                     <button class="btn btn-primary" id="register-btn">Register</button>
                 </div>
@@ -56,103 +61,26 @@
         </div>
     </nav>
 
-    <!-- Page Header -->
-    <header class="bg-primary text-white py-4">
-        <div class="container">
-            <h1>Your Personalized Recommendations</h1>
-            <p class="lead">Movies curated just for you based on your preferences and viewing history</p>
-        </div>
-    </header>
-
-    <!-- Recommendations Section -->
-    <div class="container py-5 auth-required">
-        <div class="row">
-            <div class="col-12 mb-4">
-                <div class="d-flex justify-content-between align-items-center">
-                    <h2>Recommended For You</h2>
-                    <a href="preferences.html" class="btn btn-outline-primary">Update Preferences</a>
-                </div>
-            </div>
-        </div>
-        <div class="row g-4" id="personal-recommendations">
-            <div class="col-12 text-center">
-                <div class="spinner-border" role="status">
-                    <span class="visually-hidden">Loading...</span>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Based on Recent Watches Section -->
-    <div class="container-fluid py-5 bg-light auth-required">
-        <div class="container">
-            <h2 class="mb-4">Based on Your Recent Watches</h2>
-            <div class="row g-4" id="recent-based-recommendations">
-                <div class="col-12 text-center">
-                    <div class="spinner-border" role="status">
-                        <span class="visually-hidden">Loading...</span>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Popular Movies Section -->
+    <!-- Search Results -->
     <div class="container py-5">
-        <h2 class="mb-4">Trending Now</h2>
-        <div class="row g-4" id="trending-movies">
+        <h1 id="search-title">Search Results</h1>
+        <p id="search-info" class="lead"></p>
+
+        <div class="row g-4" id="search-results">
             <div class="col-12 text-center">
-                <div class="spinner-border" role="status">
+                <div class="spinner-border text-primary" role="status">
                     <span class="visually-hidden">Loading...</span>
                 </div>
             </div>
         </div>
-    </div>
 
-    <!-- Authentication Required Notification for non-logged in users -->
-    <div class="container py-5 no-auth">
-        <div class="row justify-content-center">
-            <div class="col-md-8 text-center">
-                <div class="card shadow p-5">
-                    <h3>Get Personalized Recommendations</h3>
-                    <p class="lead">Sign up or log in to get movie recommendations tailored just for you.</p>
-                    <div class="mt-4">
-                        <button class="btn btn-primary me-3" id="login-btn-main">Login</button>
-                        <button class="btn btn-outline-primary" id="register-btn-main">Register</button>
-                    </div>
-                </div>
-            </div>
+        <!-- Pagination -->
+        <div class="d-flex justify-content-center mt-4">
+            <nav aria-label="Search results pagination">
+                <ul class="pagination" id="pagination"></ul>
+            </nav>
         </div>
     </div>
-
-    <!-- Footer -->
-    <footer class="bg-dark text-white py-4 mt-5">
-        <div class="container">
-            <div class="row">
-                <div class="col-md-6">
-                    <h5>MovieRecommender</h5>
-                    <p>Your personalized movie recommendation platform.</p>
-                </div>
-                <div class="col-md-3">
-                    <h5>Links</h5>
-                    <ul class="list-unstyled">
-                        <li><a href="../index.html" class="text-white">Home</a></li>
-                        <li><a href="recommendations.html" class="text-white">Recommendations</a></li>
-                        <li><a href="profile.html" class="text-white">Profile</a></li>
-                    </ul>
-                </div>
-                <div class="col-md-3">
-                    <h5>Powered By</h5>
-                    <p>TMDB API</p>
-                </div>
-            </div>
-            <div class="row mt-3">
-                <div class="col-12 text-center">
-                    <p class="mb-0">© 2025 MovieRecommender. All rights reserved.</p>
-                </div>
-            </div>
-        </div>
-    </footer>
 
     <!-- Login Modal -->
     <div class="modal fade" id="loginModal" tabindex="-1">
@@ -160,7 +88,7 @@
             <div class="modal-content">
                 <div class="modal-header">
                     <h5 class="modal-title">Login</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
                 <div class="modal-body">
                     <form id="login-form">
@@ -187,7 +115,7 @@
             <div class="modal-content">
                 <div class="modal-header">
                     <h5 class="modal-title">Register</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
                 <div class="modal-body">
                     <form id="register-form">
@@ -216,12 +144,38 @@
         </div>
     </div>
 
+    <!-- Toast container for notifications -->
+    <div class="toast-container position-fixed bottom-0 end-0 p-3"></div>
+
+    <!-- Footer -->
+    <footer class="bg-dark text-white py-4 mt-5">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-6">
+                    <h5>UFlix</h5>
+                    <p>Your personalized movie recommendation platform.</p>
+                </div>
+                <div class="col-md-3">
+                    <h5>Links</h5>
+                    <ul class="list-unstyled">
+                        <li><a href="../index.html" class="text-white">Home</a></li>
+                        <li><a href="profile.html" class="text-white">Profile</a></li>
+                    </ul>
+                </div>
+                <div class="col-md-3">
+                    <h5>Powered By</h5>
+                    <p>TMDB API</p>
+                </div>
+            </div>
+        </div>
+    </footer>
+
     <!-- Bootstrap Bundle with Popper -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
     
     <!-- Custom JS -->
     <script src="../assets/js/api.js"></script>
     <script src="../assets/js/auth.js"></script>
-    <script src="../assets/js/recommendations.js"></script>
+    <script src="../assets/js/search.js"></script>
 </body>
 </html>

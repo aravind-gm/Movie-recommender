@@ -1,29 +1,44 @@
 from fastapi import FastAPI, Depends
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
 from sqlalchemy.orm import Session
 from app.models import database
-from app.routers import movies, recommendations  # Removed auth import
+from app.routers import auth, movies, recommendations, users
+from app.config import settings
+import logging
 
-app = FastAPI(title="Movie Recommendation API")
+# Configure logging
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
-# CORS configuration
+app = FastAPI(title="Movie Recommendation System")
+
+# CORS middleware configuration
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # In production, replace with your frontend domain
-    allow_credentials=True,
+    allow_origins=["*"],  # Allow all origins
+    allow_credentials=False,
     allow_methods=["*"],
     allow_headers=["*"],
+    expose_headers=["*"]
 )
 
-# Include routers - removed auth router
+# Mount static files
+app.mount("/uploads", StaticFiles(directory="uploads"), name="uploads")
+
+# Include routers
+app.include_router(auth.router)
 app.include_router(movies.router)
 app.include_router(recommendations.router)
+app.include_router(users.router)
 
 # Create database tables
 @app.on_event("startup")
-def startup():
+async def startup():
+    # Create tables
     database.Base.metadata.create_all(bind=database.engine)
 
+# Root endpoint
 @app.get("/")
-def read_root():
-    return {"message": "Welcome to the Movie Recommendation API"}
+async def root():
+    return {"message": "Movie Recommendation System API"}

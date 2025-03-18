@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Movie Details - MovieRecommender</title>
+    <title>Movie Details - UFlix</title>
     
     <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
@@ -13,12 +13,27 @@
     
     <!-- Custom CSS -->
     <link rel="stylesheet" href="../assets/css/style.css">
+    <script src="../assets/js/global.js"></script>
+
+    <style>
+        .toast {
+            z-index: 1050;
+        }
+        .toast-container {
+            z-index: 1050;
+        }
+    </style>
+    <style>
+        body {
+            background-color: #141414;
+        }
+    </style>
 </head>
 <body>
     <!-- Navigation Bar -->
     <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
         <div class="container">
-            <a class="navbar-brand" href="../index.html">MovieRecommender</a>
+            <a class="navbar-brand" href="../index.html">UFlix</a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
                 <span class="navbar-toggler-icon"></span>
             </button>
@@ -28,16 +43,10 @@
                         <a class="nav-link" href="../index.html">Home</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="recommendations.html">My Recommendations</a>
-                    </li>
-                    <li class="nav-item">
                         <a class="nav-link" href="profile.html">Profile</a>
                     </li>
                 </ul>
-                <form class="d-flex" id="search-form">
-                    <input class="form-control me-2" type="search" placeholder="Search movies..." id="search-input">
-                    <button class="btn btn-outline-light" type="submit">Search</button>
-                </form>
+                
                 <div class="ms-3 d-none" id="auth-buttons">
                     <button class="btn btn-outline-light me-2" id="login-btn">Login</button>
                     <button class="btn btn-primary" id="register-btn">Register</button>
@@ -61,17 +70,30 @@
 
     <!-- Movie Details -->
     <div id="movie-details-container">
-        <!-- Content will be loaded dynamically -->
-        <div class="d-flex justify-content-center py-5">
-            <div class="spinner-border text-primary" role="status" style="width: 3rem; height: 3rem;">
-                <span class="visually-hidden">Loading...</span>
+        <div class="container py-5">
+            <div class="row">
+                <div class="col-md-4">
+                    <!-- Update poster image styling -->
+                    <img src="../assets/images/placeholder.jpg" 
+                         class="img-fluid rounded movie-poster-detail" 
+                         alt="Movie Poster"
+                         onerror="this.onerror=null; this.src='../assets/images/placeholder.jpg';">
+                </div>
+                <div class="col-md-8">
+                    <!-- Movie details will be loaded here -->
+                    <div class="d-flex justify-content-center py-5">
+                        <div class="spinner-border text-primary" role="status">
+                            <span class="visually-hidden">Loading...</span>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
 
     <!-- Similar Movies Section -->
     <div class="container py-5">
-        <h2 class="mb-4">Similar Movies</h2>
+
         <div class="row g-4" id="similar-movies">
             <div class="col-12 text-center">
                 <div class="spinner-border" role="status">
@@ -80,33 +102,34 @@
             </div>
         </div>
     </div>
-
     <!-- Rate Movie Modal -->
-    <div class="modal fade" id="rateModal" tabindex="-1">
+    <div class="modal fade" id="rateModal" tabindex="-1" aria-labelledby="rateModalLabel" aria-hidden="true">
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title">Rate This Movie</h5>
+                    <h5 class="modal-title" id="rateModalLabel">Rate This Movie</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
-                <div class="modal-body">
-                    <h4 class="text-center mb-4" id="rate-movie-title"></h4>
-                    <div class="rate-container text-center">
-                        <div class="rating-stars fs-1 mb-3">
-                            <i class="fas fa-star rating-star" data-rating="1"></i>
-                            <i class="fas fa-star rating-star" data-rating="2"></i>
-                            <i class="fas fa-star rating-star" data-rating="3"></i>
-                            <i class="fas fa-star rating-star" data-rating="4"></i>
-                            <i class="fas fa-star rating-star" data-rating="5"></i>
-                            <i class="fas fa-star rating-star" data-rating="6"></i>
-                            <i class="fas fa-star rating-star" data-rating="7"></i>
-                            <i class="fas fa-star rating-star" data-rating="8"></i>
-                            <i class="fas fa-star rating-star" data-rating="9"></i>
-                            <i class="fas fa-star rating-star" data-rating="10"></i>
+                <div class="modal-body text-center">
+                    <div class="mb-4">
+                        <div class="d-flex justify-content-center mb-3">
+                            <span class="rating-star fs-2" data-rating="1">★</span>
+                            <span class="rating-star fs-2" data-rating="2">★</span>
+                            <span class="rating-star fs-2" data-rating="3">★</span>
+                            <span class="rating-star fs-2" data-rating="4">★</span>
+                            <span class="rating-star fs-2" data-rating="5">★</span>
+                            <span class="rating-star fs-2" data-rating="6">★</span>
+                            <span class="rating-star fs-2" data-rating="7">★</span>
+                            <span class="rating-star fs-2" data-rating="8">★</span>
+                            <span class="rating-star fs-2" data-rating="9">★</span>
+                            <span class="rating-star fs-2" data-rating="10">★</span>
                         </div>
-                        <h4 class="selected-rating mb-3">Select a rating</h4>
-                        <button class="btn btn-primary btn-lg" id="submit-rating" disabled>Submit Rating</button>
+                        <h3 class="selected-rating">0/10</h3>
                     </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-primary" id="submit-rating" disabled>Submit Rating</button>
                 </div>
             </div>
         </div>
@@ -122,14 +145,13 @@
         <div class="container">
             <div class="row">
                 <div class="col-md-6">
-                    <h5>MovieRecommender</h5>
+                    <h5>UFlix</h5>
                     <p>Your personalized movie recommendation platform.</p>
                 </div>
                 <div class="col-md-3">
                     <h5>Links</h5>
                     <ul class="list-unstyled">
                         <li><a href="../index.html" class="text-white">Home</a></li>
-                        <li><a href="recommendations.html" class="text-white">Recommendations</a></li>
                         <li><a href="profile.html" class="text-white">Profile</a></li>
                     </ul>
                 </div>
@@ -140,21 +162,93 @@
             </div>
             <div class="row mt-3">
                 <div class="col-12 text-center">
-                    <p class="mb-0">© 2025 MovieRecommender. All rights reserved.</p>
+                    <p class="mb-0">© 2025 UFlix. All rights reserved.</p>
                 </div>
             </div>
         </div>
     </footer>
 
-    <!-- Login/Register Modals (same as in other pages) -->
+    <!-- Add to all pages -->
+<div class="modal fade" id="loginModal" tabindex="-1" aria-labelledby="loginModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="loginModalLabel">Login</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="login-form">
+                    <div class="mb-3">
+                        <label for="login-email" class="form-label">Email</label>
+                        <input type="email" class="form-control" id="login-email" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="login-password" class="form-label">Password</label>
+                        <input type="password" class="form-control" id="login-password" required>
+                    </div>
+                    <div class="d-grid">
+                        <button type="submit" class="btn btn-primary">Login</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="registerModal" tabindex="-1" aria-labelledby="registerModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="registerModalLabel">Register</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="register-form">
+                    <div class="mb-3">
+                        <label for="register-username" class="form-label">Username</label>
+                        <input type="text" class="form-control" id="register-username" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="register-email" class="form-label">Email</label>
+                        <input type="email" class="form-control" id="register-email" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="register-password" class="form-label">Password</label>
+                        <input type="password" class="form-control" id="register-password" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="register-confirm-password" class="form-label">Confirm Password</label>
+                        <input type="password" class="form-control" id="register-confirm-password" required>
+                    </div>
+                    <div class="d-grid">
+                        <button type="submit" class="btn btn-primary">Register</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
     <!-- These would be identical to the modals in other pages -->
 
     <!-- Bootstrap Bundle with Popper -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
-    
+
+    <!-- Toast Container -->
+    <div class="toast-container position-fixed bottom-0 end-0 p-3"></div>
+
     <!-- Custom JS -->
     <script src="../assets/js/api.js"></script>
     <script src="../assets/js/auth.js"></script>
     <script src="../assets/js/movie.js"></script>
+    
+    <script>
+        // Initialize all modals
+        document.addEventListener('DOMContentLoaded', function() {
+            const modals = document.querySelectorAll('.modal');
+            modals.forEach(modalEl => {
+                new bootstrap.Modal(modalEl);
+            });
+        });
+    </script>
 </body>
 </html>

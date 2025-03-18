@@ -16,17 +16,31 @@ class ProfilePage {
         this.editProfileForm = document.getElementById('edit-profile-form');
         this.loginBtnMain = document.getElementById('login-btn-main');
         this.registerBtnMain = document.getElementById('register-btn-main');
+        this.avatarGrid = document.getElementById('avatar-grid');
+        this.avatarPreview = document.getElementById('avatar-preview');
+        
+        // Remove these lines as we're not using them anymore
+        // this.avatarPicker = document.getElementById('avatar-picker');
+        // this.selectedAvatarInput = document.getElementById('selected-avatar');
         
         // User data
         this.userData = null;
         
+        // Base path for avatars
+        this.avatarsPath = '../assets/images/avatars';
+
+        // Initialize
         this.init();
     }
-    
+
     async init() {
+        // Load default avatars first
+        await this.loadDefaultAvatars();
+        
+        // Then bind events
         this.bindEvents();
         
-        // Check if user is logged in
+        // Finally load user profile if logged in
         const token = localStorage.getItem('token');
         if (token) {
             await this.loadUserProfile();
@@ -38,7 +52,7 @@ class ProfilePage {
         if (this.editProfileForm) {
             this.editProfileForm.addEventListener('submit', (e) => {
                 e.preventDefault();
-                this.updateProfile();
+                this.updateProfile(e);
             });
         }
         
@@ -55,6 +69,24 @@ class ProfilePage {
             this.registerBtnMain.addEventListener('click', () => {
                 const registerModal = new bootstrap.Modal(document.getElementById('registerModal'));
                 registerModal.show();
+            });
+        }
+
+        // Add preview for profile picture
+        const avatarInput = document.getElementById('edit-avatar');
+        if (avatarInput) {
+            avatarInput.addEventListener('change', (e) => {
+                const file = e.target.files[0];
+                if (file) {
+                    const reader = new FileReader();
+                    reader.onload = (e) => {
+                        const preview = document.querySelector('.user-avatar');
+                        if (preview) {
+                            preview.src = e.target.result;
+                        }
+                    };
+                    reader.readAsDataURL(file);
+                }
             });
         }
     }
@@ -79,15 +111,42 @@ class ProfilePage {
     updateProfileDisplay() {
         if (!this.userData) return;
         
-        // Update profile username and email
+        // Update profile picture
+        const profileAvatar = document.querySelector('.user-avatar');
+        if (profileAvatar) {
+            let avatarUrl;
+            
+            if (this.userData.avatar_url) {
+                // Always use the avatarsPath for local files
+                avatarUrl = `${this.avatarsPath}/${this.userData.avatar_url}`;
+                console.log('Setting avatar URL:', avatarUrl);
+            } else {
+                avatarUrl = `${this.avatarsPath}/default.png`;
+                console.log('Using default avatar:', avatarUrl);
+            }
+
+            profileAvatar.src = avatarUrl;
+            profileAvatar.onerror = () => {
+                console.error('Failed to load avatar:', avatarUrl);
+                profileAvatar.src = `${this.avatarsPath}/default.png`;
+            };
+
+            // Also update preview if it exists
+            if (this.avatarPreview) {
+                this.avatarPreview.src = avatarUrl;
+                this.avatarPreview.onerror = () => {
+                    this.avatarPreview.src = `${this.avatarsPath}/default.png`;
+                };
+            }
+        }
+
+        // Update other profile information
         if (this.profileUsername) {
             this.profileUsername.textContent = this.userData.username;
         }
-        
         if (this.profileEmail) {
             this.profileEmail.textContent = this.userData.email;
         }
-        
         // Update user statistics
         if (this.moviesRatedCount) {
             this.moviesRatedCount.textContent = this.userData.rated_movies?.length || 0;
@@ -170,45 +229,46 @@ class ProfilePage {
         });
     }
     
-    async updateProfile() {
-        // In a real app, this would call the backend to update the user's profile
-        const username = document.getElementById('edit-username').value;
-        const email = document.getElementById('edit-email').value;
-        const password = document.getElementById('edit-password').value;
-        const avatarInput = document.getElementById('edit-avatar');
-        
-        // Show loading spinner
+    async updateProfile(e) {
+        e.preventDefault();
         const spinner = this.showLoadingSpinner();
         
         try {
-            // Update user profile
-            // For this demo, we'll just simulate the update
+            const formData = new FormData();
+            
+            const username = document.getElementById('edit-username').value;
+            const email = document.getElementById('edit-email').value;
+            const password = document.getElementById('edit-password').value;
+            const selectedAvatar = document.getElementById('selected-avatar').value;
+            
+            if (username) formData.append('username', username);
+            if (email) formData.append('email', email);
+            if (password) formData.append('password', password);
+            if (selectedAvatar) formData.append('avatar', selectedAvatar);
+            
+            const response = await apiService.updateProfile(formData);
             
             // Update local user data
-            this.userData.username = username;
-            this.userData.email = email;
+            this.userData = response;
             
-            // Hide modal
-            const editProfileModal = bootstrap.Modal.getInstance(document.getElementById('editProfileModal'));
-            editProfileModal.hide();
-            
-            // Update profile display
+            // Update display
             this.updateProfileDisplay();
             
-            // Hide loading spinner
-            this.hideLoadingSpinner(spinner);
+            // Hide modal
+            const editProfileModal = bootstrap.Modal.getInstance(
+                document.getElementById('editProfileModal')
+            );
+            editProfileModal?.hide();
             
-            // Show success message
-            this.showToast('Profile updated successfully!', 'success');
-            
+            this.showToast('Profile updated successfully', 'success');
         } catch (error) {
             console.error('Error updating profile:', error);
-            
-            // Hide loading spinner
+            this.showToast(
+                error.response?.detail || error.message || 'Failed to update profile', 
+                'danger'
+            );
+        } finally {
             this.hideLoadingSpinner(spinner);
-            
-            // Show error message
-            this.showToast('Failed to update profile. Please try again later.', 'danger');
         }
     }
     
@@ -313,6 +373,124 @@ class ProfilePage {
         toastEl.addEventListener('hidden.bs.toast', () => {
             toastEl.remove();
         });
+    }
+
+    loadDefaultAvatars() {
+        const defaultAvatars = [
+            'avatar1.png',
+            'avatar2.png',
+            'avatar3.png',
+            'avatar4.png',
+            'avatar5.png',
+            'avatar6.png'
+        ];
+
+        // Use absolute paths for avatars
+        this.renderAvatarGrid(defaultAvatars.map(filename => ({
+            filename,
+            url: `${this.avatarsPath}/${filename}`
+        })));
+    }
+
+    async loadAvatars() {
+        try {
+            const response = await apiService.getAvatars();
+            this.renderAvatarGrid(response.avatars);
+        } catch (error) {
+            console.error('Error loading avatars:', error);
+        }
+    }
+
+    renderAvatarGrid(avatars) {
+        if (!this.avatarGrid) return;
+
+        this.avatarGrid.innerHTML = avatars.map(avatar => `
+            <div class="avatar-item">
+                <img src="${avatar.url}" 
+                     class="avatar-option ${this.userData?.avatar_url === avatar.url ? 'selected' : ''}" 
+                     data-avatar="${avatar.filename}"
+                     alt="Avatar option">
+            </div>
+        `).join('');
+
+        // Add click handlers
+        this.avatarGrid.querySelectorAll('.avatar-option').forEach(option => {
+            option.addEventListener('click', () => this.selectAvatar(option));
+        });
+    }
+
+    async selectAvatar(element) {
+        try {
+            const avatarFilename = element.dataset.avatar;
+            console.log('Selected avatar:', avatarFilename);
+
+            if (!avatarFilename) {
+                throw new Error('No avatar filename provided');
+            }
+
+            const formData = new FormData();
+            formData.append('avatar', avatarFilename);
+
+            // Keep existing user data
+            formData.append('username', this.userData.username);
+            formData.append('email', this.userData.email);
+
+            const response = await apiService.updateProfile(formData);
+            console.log('Profile update response:', response);
+            
+            // Update userData with the response
+            if (response) {
+                this.userData = {
+                    ...this.userData,
+                    avatar_url: avatarFilename // Use the filename directly
+                };
+                
+                // Update UI
+                this.updateProfileDisplay();
+                
+                // Update selected state in grid
+                this.avatarGrid.querySelectorAll('.avatar-option').forEach(opt => {
+                    opt.classList.toggle('selected', opt.dataset.avatar === avatarFilename);
+                });
+                
+                // Close modal
+                const modalElement = document.getElementById('avatarModal');
+                if (modalElement) {
+                    const modal = bootstrap.Modal.getInstance(modalElement);
+                    modal?.hide();
+                }
+                
+                this.showToast('Profile picture updated successfully', 'success');
+            } else {
+                throw new Error('Invalid response from server');
+            }
+        } catch (error) {
+            console.error('Error updating avatar:', error);
+            this.showToast(error.message || 'Failed to update profile picture', 'danger');
+        }
+    }
+
+    setupAvatarHandlers() {
+        // Handle file upload
+        if (this.avatarUpload) {
+            this.avatarUpload.addEventListener('change', async (e) => {
+                const file = e.target.files?.[0];
+                if (!file) return;
+
+                try {
+                    const response = await apiService.uploadProfilePicture(file);
+                    this.userData.avatar_url = response.url;
+                    this.updateProfileDisplay();
+                    this.loadAvatars(); // Refresh avatar grid
+                    
+                    // Close modal
+                    bootstrap.Modal.getInstance(document.getElementById('avatarModal'))?.hide();
+                } catch (error) {
+                    console.error('Error uploading avatar:', error);
+                    this.showToast('Failed to upload avatar', 'danger');
+                }
+            });
+        }
     }
 }
 

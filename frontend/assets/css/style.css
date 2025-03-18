@@ -2,36 +2,47 @@
 
 /* Global Styles */
 body {
+    background-color: var(--netflix-black);
+    color: var(--netflix-text);
     font-family: 'Roboto', sans-serif;
-    color: #333;
 }
 
 /* Hero Section */
 .hero-section {
-    background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
+    background: linear-gradient(135deg, #000000 0%, var(--netflix-dark) 100%);
     padding: 60px 0;
 }
 
-/* Movie Card */
+/* Movie card styling */
 .movie-card {
+    height: 100%;
     border-radius: 8px;
     overflow: hidden;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    transition: transform 0.3s, box-shadow 0.3s;
-    height: 100%;
-    display: flex;
-    flex-direction: column;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    background-color: var(--netflix-dark);
+    border: none;
+    position: relative;
 }
 
 .movie-card:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.15);
+    transform: scale(1.05);
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.5);
 }
 
 .movie-poster {
+    width: 100%;
     height: 300px;
     object-fit: cover;
+    border-bottom: 1px solid #eee;
+}
+
+.movie-poster-detail {
     width: 100%;
+    object-fit: contain;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+    max-height: 500px;
 }
 
 .movie-rating {
@@ -39,46 +50,57 @@ body {
     top: 10px;
     right: 10px;
     background-color: rgba(0, 0, 0, 0.7);
-    color: white;
-    padding: 4px 8px;
-    border-radius: 4px;
+    color: #ffc107;
+    padding: 5px 10px;
+    border-radius: 15px;
     font-weight: bold;
+    font-size: 14px;
 }
 
 .movie-card-body {
     padding: 15px;
-    flex-grow: 1;
     display: flex;
     flex-direction: column;
+    height: calc(100% - 300px);
+    background-color: var(--netflix-dark);
+    color: var(--netflix-text);
 }
 
 .movie-title {
-    font-weight: 600;
-    margin-bottom: 8px;
-    font-size: 1.1rem;
+    font-size: 1rem;
+    font-weight: bold;
+    margin-bottom: 5px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    color: var(--netflix-text);
 }
 
 .movie-genres {
-    color: #6c757d;
+    color: #808080;
+    font-size: 0.85rem;
     margin-bottom: 10px;
-    font-size: 0.9rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
 .movie-overview {
-    font-size: 0.9rem;
+    font-size: 0.85rem;
     overflow: hidden;
     text-overflow: ellipsis;
     display: -webkit-box;
     -webkit-line-clamp: 3;
     -webkit-box-orient: vertical;
+    margin-bottom: 15px;
     flex-grow: 1;
 }
 
 .movie-card-footer {
-    margin-top: 10px;
     display: flex;
     justify-content: space-between;
     align-items: center;
+    margin-top: auto;
 }
 
 /* Genre Card */
@@ -86,7 +108,8 @@ body {
     text-align: center;
     padding: 15px;
     border-radius: 8px;
-    background-color: #f8f9fa;
+    background-color: var(--netflix-dark);
+    color: var(--netflix-text);
     transition: all 0.3s;
     cursor: pointer;
 }
@@ -97,8 +120,38 @@ body {
 
 /* Rating stars */
 .rating-stars {
-    color: gold;
-    font-size: 1.2rem;
+    display: inline-flex;
+    margin-top: 10px;
+}
+
+.rating-stars .star {
+    font-size: 20px;
+    cursor: pointer;
+    color: #e4e5e9;
+    padding: 3px;
+    transition: color 0.2s ease;
+}
+
+.rating-stars .star.active {
+    color: #ffc107;
+}
+
+.rating-stars .star:hover {
+    color: #ffdb70;
+}
+
+/* Add to your style.css file */
+.rating-star {
+    cursor: pointer;
+    color: #ddd;
+    transition: color 0.2s;
+    margin: 0 2px;
+}
+
+.rating-star:hover,
+.rating-star.text-warning,
+.rating-star.selected {
+    color: #ffc107;
 }
 
 /* Preferences checkboxes */
@@ -130,12 +183,44 @@ body {
 
 /* User profile */
 .user-avatar {
+    width: 150px;
+    height: 150px;
+    object-fit: cover;
+    border-radius: 50%;
+    border: 3px solid #fff;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.profile-header {
+    position: relative;
+    margin-bottom: 2rem;
+}
+
+/* Avatar picker */
+.avatar-picker {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+    gap: 1rem;
+    margin: 1rem 0;
+}
+
+.avatar-option {
     width: 100px;
     height: 100px;
-    border-radius: 50%;
     object-fit: cover;
-    border: 3px solid #fff;
-    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
+    border-radius: 50%;
+    cursor: pointer;
+    border: 3px solid transparent;
+    transition: all 0.2s ease;
+}
+
+.avatar-option:hover {
+    transform: scale(1.1);
+}
+
+.avatar-option.selected {
+    border-color: #007bff;
+    transform: scale(1.1);
 }
 
 /* Movie details page */
@@ -203,7 +288,7 @@ body {
     left: 0;
     width: 100%;
     height: 100%;
-    background-color: rgba(255, 255, 255, 0.7);
+    background-color: rgba(0, 0, 0, 0.7);
     display: flex;
     justify-content: center;
     align-items: center;
@@ -212,8 +297,11 @@ body {
 
 /* Recommendations page specific */
 .recommendation-section {
-    padding: 30px 0;
-    background-color: #f9f9f9;
+    padding: 2rem 0;
+}
+
+.recommendation-section-alt {
+    background-color: var(--netflix-dark);
 }
 
 /* Responsive adjustments */
@@ -229,4 +317,190 @@ body {
     .hero-section {
         text-align: center;
     }
+}
+
+/* Avatar grid */
+.avatar-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+    gap: 1rem;
+    padding: 1rem;
+}
+
+.avatar-item {
+    text-align: center;
+}
+
+.avatar-option {
+    width: 100px;
+    height: 100px;
+    object-fit: cover;
+    border-radius: 50%;
+    cursor: pointer;
+    border: 3px solid transparent;
+    transition: all 0.2s ease;
+}
+
+.avatar-option:hover {
+    transform: scale(1.1);
+}
+
+.avatar-option.selected {
+    border-color: #007bff;
+    transform: scale(1.1);
+}
+
+.preview-avatar {
+    width: 100px;
+    height: 100px;
+    object-fit: cover;
+    border-radius: 50%;
+}
+
+/* Dark Theme Colors */
+:root {
+    --netflix-black: #141414;
+    --netflix-dark: #181818;
+    --netflix-red: #E50914;
+    --netflix-text: #e5e5e5;
+}
+
+/* Global Dark Theme */
+.netflix-dark {
+    background-color: var(--netflix-black);
+    color: var(--netflix-text);
+    min-height: 100vh;
+}
+
+/* Login Page Styles */
+.login-wrapper {
+    min-height: 100vh;
+    background: linear-gradient(rgba(0, 0, 0, 0.75), rgba(0, 0, 0, 0.75)), url('../images/login-bg.jpg');
+    background-size: cover;
+    background-position: center;
+}
+
+.login-header {
+    padding: 24px 48px;
+}
+
+.brand-logo {
+    color: var(--netflix-red);
+    font-size: 2rem;
+    font-weight: bold;
+    text-decoration: none;
+}
+
+.brand-logo:hover {
+    color: var(--netflix-red);
+}
+
+.login-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: calc(100vh - 100px);
+    padding: 20px;
+}
+
+.login-box {
+    background: rgba(0, 0, 0, 0.75);
+    border-radius: 4px;
+    padding: 60px 68px 40px;
+    min-width: 380px;
+}
+
+/* Form Styles */
+.form-control {
+    background-color: #333;
+    border-color: #404040;
+    color: var(--netflix-text);
+}
+
+.form-control:focus {
+    background-color: #404040;
+    border-color: var(--netflix-red);
+    color: var(--netflix-text);
+}
+
+.form-floating label {
+    color: #8c8c8c;
+}
+
+/* Button Styles */
+.btn-danger {
+    background-color: var(--netflix-red);
+    border-color: var(--netflix-red);
+}
+
+.btn-danger:hover {
+    background-color: #f40612;
+    border-color: #f40612;
+}
+
+/* Dark Theme for Main App */
+.navbar-dark {
+    background-color: var(--netflix-black) !important;
+}
+
+.card {
+    background-color: var(--netflix-dark);
+    border: none;
+    transition: transform 0.3s ease;
+}
+
+.card:hover {
+    transform: scale(1.05);
+}
+
+.modal-content {
+    background-color: var(--netflix-dark);
+    color: var(--netflix-text);
+}
+
+/* Movie Grid Styles */
+.movie-card {
+    background-color: var(--netflix-dark);
+    border: none;
+    transition: transform 0.3s ease;
+}
+
+.movie-card:hover {
+    transform: scale(1.05);
+}
+
+.movie-card .card-body {
+    padding: 1rem;
+}
+
+.movie-title {
+    color: white;
+    margin-bottom: 0.5rem;
+}
+
+/* Genre Cards */
+.genre-card {
+    background-color: var(--netflix-dark);
+    border: none;
+    transition: transform 0.3s ease;
+}
+
+.genre-card:hover {
+    transform: scale(1.05);
+    background-color: var(--netflix-red);
+}
+
+/* Update text colors */
+h1, h2, h3, h4, h5, h6, p {
+    color: var(--netflix-text);
+}
+
+/* Update links */
+a {
+    color: var(--netflix-text);
+    text-decoration: none;
+}
+
+a:hover {
+    color: var(--netflix-red);
 }

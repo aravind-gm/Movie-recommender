@@ -1,9 +1,8 @@
 from sqlalchemy import Boolean, Column, Integer, String, Table, ForeignKey, DateTime
 from sqlalchemy.orm import relationship
 from app.models.database import Base
-import bcrypt
-import uuid
 from datetime import datetime
+import bcrypt
 
 # Many-to-many relationship table for user preferences (genres)
 user_genre = Table(
@@ -31,10 +30,16 @@ class User(Base):
     email = Column(String, unique=True, index=True)
     hashed_password = Column(String)
     is_active = Column(Boolean, default=True)
+    avatar_url = Column(String, nullable=True)
     
     # Relationships
     preferences = relationship("Genre", secondary=user_genre, back_populates="users")
     watch_history = relationship("Movie", secondary=user_movie, back_populates="viewers")
+    
+    # New relationships for the entities defined in movie.py
+    watchlist_entries = relationship("Watchlist", back_populates="user", cascade="all, delete-orphan")
+    watch_history_entries = relationship("WatchHistory", back_populates="user", cascade="all, delete-orphan")
+    ratings_entries = relationship("Rating", back_populates="user", cascade="all, delete-orphan")
     
     def set_password(self, password):
         self.hashed_password = bcrypt.hashpw(password.encode(), bcrypt.gensalt()).decode()

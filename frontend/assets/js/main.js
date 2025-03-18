@@ -12,6 +12,9 @@ class MovieApp {
         this.searchInput = document.getElementById('search-input');
         
         this.init();
+        
+        // Setup search functionality
+        this.setupSearch();
     }
     
     async init() {
@@ -34,14 +37,28 @@ class MovieApp {
         }
     }
     
+    setupSearch() {
+        document.getElementById('search-form')?.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const query = document.getElementById('search-input').value.trim();
+            if (query) {
+                window.location.href = `pages/search-results.html?q=${encodeURIComponent(query)}`;
+            }
+        });
+    }
+
     async loadPopularMovies() {
         if (!this.popularMoviesContainer) return;
         
         try {
-            const movies = await apiService.getPopularMovies();
+            const response = await apiService.getPopularMovies();
             
             // Clear loading spinner
             this.popularMoviesContainer.innerHTML = '';
+            
+            // Extract movies array from response
+            const movies = response.movies || [];
+            console.log('Movies array:', movies); // Debug statement
             
             // Display movies
             movies.forEach(movie => {
@@ -63,10 +80,14 @@ class MovieApp {
         if (!this.genresContainer) return;
         
         try {
-            const genres = await apiService.getGenres();
+            const response = await apiService.getGenres();
             
             // Clear container
             this.genresContainer.innerHTML = '';
+            
+            // Extract genres array from response
+            const genres = response.genres || [];
+            console.log('Genres array:', genres); // Debug statement
             
             // Display genres
             genres.forEach(genre => {
@@ -97,31 +118,34 @@ class MovieApp {
     }
     
     createMovieCard(movie) {
+        // Debug log to see movie object
+        console.log('Creating movie card for:', movie);
+
         const movieCol = document.createElement('div');
         movieCol.className = 'col-lg-3 col-md-4 col-sm-6 mb-4';
         
         // Format release date
         const releaseDate = movie.release_date ? new Date(movie.release_date).toLocaleDateString() : 'Unknown';
         
-        // Format genres (if available)
-        let genresHtml = '';
-        if (movie.genres && movie.genres.length > 0) {
-            genresHtml = movie.genres.map(genre => genre.name).join(', ');
-        }
-        
+        // Get movie ID safely
+        const movieId = movie.id || movie.tmdb_id;
+        console.log('Movie ID:', movieId); // Debug movie ID
+
         movieCol.innerHTML = `
             <div class="movie-card">
                 <div class="position-relative">
                     <img src="${apiService.getImageUrl(movie.poster_path)}" class="movie-poster" alt="${movie.title}">
-                    <span class="movie-rating">${movie.vote_average.toFixed(1)}</span>
+                    <span class="movie-rating">${movie.vote_average?.toFixed(1) || 'N/A'}</span>
                 </div>
                 <div class="movie-card-body">
                     <h5 class="movie-title">${movie.title}</h5>
-                    <div class="movie-genres">${genresHtml || releaseDate}</div>
                     <p class="movie-overview">${movie.overview || 'No description available.'}</p>
                     <div class="movie-card-footer">
                         <small class="text-muted">${releaseDate}</small>
-                        <a href="pages/movie.html?id=${movie.tmdb_id}" class="btn btn-sm btn-primary">Details</a>
+                        <a href="pages/movie.html?id=${movieId}" class="btn btn-sm btn-primary" 
+                           onclick="event.preventDefault(); if(${movieId}) window.location.href=this.href;">
+                            Details
+                        </a>
                     </div>
                 </div>
             </div>

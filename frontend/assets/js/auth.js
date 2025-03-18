@@ -5,6 +5,15 @@
 
 class AuthHandler {
     constructor() {
+        this.loginForm = document.getElementById('login-form');
+        this.registerForm = document.getElementById('register-form');
+        this.loginBtn = document.getElementById('login-btn') || document.getElementById('login-btn-main');
+        this.registerBtn = document.getElementById('register-btn') || document.getElementById('register-btn-main');
+        this.logoutBtn = document.getElementById('logout-btn');
+        
+        // Initialize modals safely
+        this.initializeModals();
+
         this.isLoggedIn = false;
         this.currentUser = null;
         
@@ -12,19 +21,40 @@ class AuthHandler {
         this.authButtons = document.getElementById('auth-buttons');
         this.userInfo = document.getElementById('user-info');
         this.usernameEl = document.getElementById('username');
-        this.loginBtn = document.getElementById('login-btn');
-        this.registerBtn = document.getElementById('register-btn');
-        this.logoutBtn = document.getElementById('logout-btn');
-        
-        // Modals
-        this.loginModal = new bootstrap.Modal(document.getElementById('loginModal'));
-        this.registerModal = new bootstrap.Modal(document.getElementById('registerModal'));
-        
-        // Forms
-        this.loginForm = document.getElementById('login-form');
-        this.registerForm = document.getElementById('register-form');
         
         this.init();
+    }
+
+    initializeModals() {
+        try {
+            // Get modal elements
+            this.loginModal = document.getElementById('loginModal');
+            this.registerModal = document.getElementById('registerModal');
+            
+            if (this.loginModal) {
+                if (typeof bootstrap !== 'undefined') {
+                    this.loginModalInstance = bootstrap.Modal.getInstance(this.loginModal) || 
+                                          new bootstrap.Modal(this.loginModal, {
+                                              backdrop: true,
+                                              keyboard: true,
+                                              focus: true
+                                          });
+                }
+            }
+            
+            if (this.registerModal) {
+                if (typeof bootstrap !== 'undefined') {
+                    this.registerModalInstance = bootstrap.Modal.getInstance(this.registerModal) || 
+                                             new bootstrap.Modal(this.registerModal, {
+                                                 backdrop: true,
+                                                 keyboard: true,
+                                                 focus: true
+                                             });
+                }
+            }
+        } catch (error) {
+            console.error('Error initializing modals:', error);
+        }
     }
     
     async init() {
@@ -46,21 +76,21 @@ class AuthHandler {
             this.updateUI();
         }
         
-        this.bindEvents();
+        this.setupEventListeners();
     }
     
-    bindEvents() {
+    setupEventListeners() {
         // Login button click
         if (this.loginBtn) {
             this.loginBtn.addEventListener('click', () => {
-                this.loginModal.show();
+                this.loginModalInstance?.show();
             });
         }
         
         // Register button click
         if (this.registerBtn) {
             this.registerBtn.addEventListener('click', () => {
-                this.registerModal.show();
+                this.registerModalInstance?.show();
             });
         }
         
@@ -95,24 +125,29 @@ class AuthHandler {
         
         try {
             const response = await apiService.login(email, password);
-            localStorage.setItem('token', response.access_token);
             
-            // Get user info
-            this.currentUser = await apiService.getCurrentUser();
-            this.isLoggedIn = true;
-            
-            // Update UI
-            this.updateUI();
-            this.loginModal.hide();
-            
-            // Show success message
-            this.showToast('Login successful!', 'success');
-            
-            // Reload page to update content based on user
-            window.location.reload();
+            if (response.access_token) {
+                localStorage.setItem('token', response.access_token);
+                
+                // Get user info
+                this.currentUser = await apiService.getCurrentUser();
+                this.isLoggedIn = true;
+                
+                // Update UI
+                this.updateUI();
+                this.loginModalInstance?.hide();
+                
+                // Show success message
+                this.showToast('Login successful!', 'success');
+                
+                // Reload page to update content based on user
+                window.location.reload();
+            } else {
+                throw new Error('Login failed: No access token received');
+            }
         } catch (error) {
             console.error('Login error:', error);
-            this.showToast('Login failed: ' + error.message, 'danger');
+            this.showToast(error.message || 'Login failed', 'danger');
         }
     }
     
@@ -129,9 +164,9 @@ class AuthHandler {
         
         try {
             const response = await apiService.register(username, email, password);
-            this.registerModal.hide();
+            this.registerModalInstance.hide();
             this.showToast('Registration successful! Please log in.', 'success');
-            this.loginModal.show();
+            this.loginModalInstance.show();
         } catch (error) {
             console.error('Registration error:', error);
             this.showToast('Registration failed: ' + error.message, 'danger');
@@ -227,7 +262,11 @@ class AuthHandler {
     }
 }
 
-// Initialize auth handler
+// Initialize auth handler safely
 document.addEventListener('DOMContentLoaded', () => {
-    window.authHandler = new AuthHandler();
+    try {
+        window.authHandler = new AuthHandler();
+    } catch (error) {
+        console.error('Error initializing AuthHandler:', error);
+    }
 });
